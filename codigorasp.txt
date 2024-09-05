@@ -1,5 +1,5 @@
+# Importando as bibliotecas necessárias
 import time, utime
-#import ubinascii
 from umqtt.simple import MQTTClient
 import machine
 from machine import Pin 
@@ -27,8 +27,8 @@ print("Conectando com o WiFi...")
 do_connect()
 
 # Para conectar ao MQTT_BROKER 
-MQTT_BROKER = "192.168.10.100"
-CLIENT_ID = "Client1" #ubinascii.hexlify(machine.unique_id())
+MQTT_BROKER = "192.168.10.100" #Set your preferred IP address
+CLIENT_ID = "Client1" 
 
 #Lista de tópicos
 SUBSCRIBE_TOPIC = b"C1/S/"
@@ -87,8 +87,7 @@ def main():
             print(f"Umidade     : {sensor.humidity():.1f}%")
             
             if (time.time() - last_publish) >= publish_interval:
-                random_temp = get_temperature_reading()
-               # mqttClient.publish(PUBLISH_TOPIC, str(random_temp).encode())
+            
                 mqttClient.publish(PUBLISH_TOPIC2, str(sensor.temperature()))
                 mqttClient.publish(PUBLISH_TOPIC3, str(sensor.humidity()))                   
                 
