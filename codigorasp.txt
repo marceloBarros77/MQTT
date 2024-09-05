@@ -31,9 +31,7 @@ MQTT_BROKER = "192.168.10.100"
 CLIENT_ID = "Client1" #ubinascii.hexlify(machine.unique_id())
 
 #Lista de tópicos
-#SUBSCRIBE_TOPIC = b"led"
 SUBSCRIBE_TOPIC = b"C1/S/"
-#PUBLISH_TOPIC = b"C1/t1/"
 PUBLISH_TOPIC1 = b"C1/R/"
 PUBLISH_TOPIC2 = b"C1/T/"
 PUBLISH_TOPIC3 = b"C1/U/"
@@ -47,7 +45,7 @@ p20 = Pin(15,Pin.IN)
 last_publish = time.time()
 publish_interval = 5
 
-# Recebendo mensagem dos assinantes que serão entregues para este callback
+# Recebendo mensagem dos assinantes 
 def sub_cb(topic, msg):
     print((topic, msg))
     if msg.decode() == "O":
