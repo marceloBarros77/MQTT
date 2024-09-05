@@ -1,7 +1,6 @@
 # Importando as bibliotecas necessárias
 import network
 import time, utime
-import ubinascii
 from umqtt.simple import MQTTClient
 import machine
 from machine import Pin 
@@ -28,7 +27,7 @@ print("Conectando com o WiFi...")
 do_connect()
 
 # Para conectar ao MQTT_BROKER 
-MQTT_BROKER = "192.168.10.100"
+MQTT_BROKER = "192.168.10.100" #Set your preferred IP address
 CLIENT_ID = "Client2" 
 
 #Lista de tópicos
@@ -71,7 +70,7 @@ def main():
     mqttClient.set_callback(sub_cb)
     mqttClient.connect()
     mqttClient.subscribe(SUBSCRIBE_TOPIC)
-    print(f"Conectado com MQTT  Broker :: {MQTT_BROKER}, e aguardando...")
+    print(f"Conectado com MQTT  Broker :: {MQTT_BROKER}, e aguardando tópicos")
     while True:
             # Monitoramento das variáveis
             mqttClient.check_msg()
