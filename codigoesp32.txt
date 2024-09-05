@@ -1,4 +1,4 @@
-# Importe as bibliotecas necessárias
+# Importando as bibliotecas necessárias
 import network
 import time, utime
 import ubinascii
@@ -29,12 +29,10 @@ do_connect()
 
 # Para conectar ao MQTT_BROKER 
 MQTT_BROKER = "192.168.10.100"
-CLIENT_ID = "Client2" #ubinascii.hexlify(machine.unique_id())
+CLIENT_ID = "Client2" 
 
 #Lista de tópicos
-#SUBSCRIBE_TOPIC = b"led"
 SUBSCRIBE_TOPIC = b"C2/S/"
-#PUBLISH_TOPIC = b"C2/T"
 PUBLISH_TOPIC1 = b"C2/R/"
 PUBLISH_TOPIC2 = b"C2/T/"
 PUBLISH_TOPIC3 = b"C2/U/"
@@ -66,9 +64,6 @@ def reset():
     time.sleep(5)
     machine.reset()
     
-# Gerando leitura de temperatura interna do raspberry    
-def get_temperature_reading():
-    return random.randint(20, 50)
     
 def main():
     print(f"Iniciando conexão com MQTT Broker :: {MQTT_BROKER}")
@@ -76,7 +71,7 @@ def main():
     mqttClient.set_callback(sub_cb)
     mqttClient.connect()
     mqttClient.subscribe(SUBSCRIBE_TOPIC)
-    print(f"Conectado com MQTT  Broker :: {MQTT_BROKER}, e aguardando função callback ser chamada!")
+    print(f"Conectado com MQTT  Broker :: {MQTT_BROKER}, e aguardando...")
     while True:
             # Monitoramento das variáveis
             mqttClient.check_msg()
@@ -88,8 +83,7 @@ def main():
             print(f"Umidade     : {sensor.humidity():.1f}%")
             
             if (time.time() - last_publish) >= publish_interval:
-                random_temp = get_temperature_reading()
-                #mqttClient.publish(PUBLISH_TOPIC, str(random_temp).encode())
+                
                 mqttClient.publish(PUBLISH_TOPIC2, str(sensor.temperature()))
                 mqttClient.publish(PUBLISH_TOPIC3, str(sensor.humidity())) 
                 
