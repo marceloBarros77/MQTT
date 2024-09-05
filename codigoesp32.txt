@@ -9,8 +9,8 @@ import random
 import dht
 
 # Dados para acesso à rede WiFi
-SSID = "IoT_"
-SSID_PASSWORD = "12345678"
+SSID = "Your WiFi network"
+SSID_PASSWORD = "password"
 
 # Comando para conectar à rede
 def do_connect():
