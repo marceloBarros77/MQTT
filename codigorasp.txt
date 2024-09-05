@@ -1,0 +1,113 @@
+import time, utime
+#import ubinascii
+from umqtt.simple import MQTTClient
+import machine
+from machine import Pin 
+import random
+import dht
+
+
+# Dados para acesso à rede WiFi
+SSID = "IoT_"
+SSID_PASSWORD = "12345678"
+
+# Comando para conectar à rede
+def do_connect():
+    sta_if = network.WLAN(network.STA_IF)
+    if not sta_if.isconnected():
+        print('Conectando à rede...')
+        sta_if.active(True)
+        sta_if.connect(SSID, SSID_PASSWORD)
+        while not sta_if.isconnected():
+            print("Conectando....")
+            utime.sleep(1)
+    print('Conectado!!! Configuração de rede:', sta_if.ifconfig())
+    
+print("Conectando com o WiFi...")
+do_connect()
+
+# Para conectar ao MQTT_BROKER 
+MQTT_BROKER = "192.168.10.100"
+CLIENT_ID = "Client1" #ubinascii.hexlify(machine.unique_id())
+
+#Lista de tópicos
+#SUBSCRIBE_TOPIC = b"led"
+SUBSCRIBE_TOPIC = b"C1/S/"
+#PUBLISH_TOPIC = b"C1/t1/"
+PUBLISH_TOPIC1 = b"C1/R/"
+PUBLISH_TOPIC2 = b"C1/T/"
+PUBLISH_TOPIC3 = b"C1/U/"
+
+# Setup das entradas do Raspberry
+led = Pin("LED",Pin.OUT)
+p29 = Pin(22,Pin.OUT)
+p20 = Pin(15,Pin.IN)
+
+# Publicando mensagens MQTT a cada 5 segundos
+last_publish = time.time()
+publish_interval = 5
+
+# Recebendo mensagem dos assinantes que serão entregues para este callback
+def sub_cb(topic, msg):
+    print((topic, msg))
+    if msg.decode() == "O":
+       # led.value(1)
+        p29.value(1)
+        
+    else:
+        if msg.decode() == "o":
+        #    led.value(0)
+            p29.value(0)
+
+
+def reset():
+    print("Resetando...")
+    time.sleep(5)
+    machine.reset()
+    
+# Gerando leitura de temperatura interna do raspberry    
+def get_temperature_reading():
+    return random.randint(20, 50)
+
+# Conexão com o broker
+def main():
+    print(f"Iniciando conexão com MQTT Broker :: {MQTT_BROKER}")
+    mqttClient = MQTTClient(CLIENT_ID, MQTT_BROKER, keepalive=60)
+    mqttClient.set_callback(sub_cb)
+    mqttClient.connect()
+    mqttClient.subscribe(SUBSCRIBE_TOPIC)
+    print(f"Conectado com MQTT  Broker :: {MQTT_BROKER}, e aguardando tópicos")
+    while True:
+            # Monitoramento das variáveis
+            led.value(1)
+            mqttClient.check_msg()
+            global last_publish
+            
+            sensor = dht.DHT22(Pin(14))
+            sensor.measure() 
+            print(f"Temperatura : {sensor.temperature():.1f}°C")
+            print(f"Umidade     : {sensor.humidity():.1f}%")
+            
+            if (time.time() - last_publish) >= publish_interval:
+                random_temp = get_temperature_reading()
+               # mqttClient.publish(PUBLISH_TOPIC, str(random_temp).encode())
+                mqttClient.publish(PUBLISH_TOPIC2, str(sensor.temperature()))
+                mqttClient.publish(PUBLISH_TOPIC3, str(sensor.humidity()))                   
+                
+                if p20.value():
+                    mqttClient.publish(PUBLISH_TOPIC1, "fechada")
+                
+                else:
+                    mqttClient.publish(PUBLISH_TOPIC1, "aberta")
+                    
+                last_publish = time.time()
+            time.sleep(1)
+
+
+if __name__ == "__main__":
+    while True:
+        try:
+            main()
+        except OSError as e:
+            print("Error: " + str(e))
+            reset()
